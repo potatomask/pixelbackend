@@ -7,11 +7,11 @@ export default async function DevLayout({ children }: { children: React.ReactNod
   const session = await auth.api.getSession({ headers: hdrs });
 
   if (!session?.user) {
-    redirect("/signin");
+    redirect("/");
   }
 
   if (!(session.user as any).isAdmin) {
-    redirect("/");
+    redirect("/dashboard");
   }
 
   return <>{children}</>;

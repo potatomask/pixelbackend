@@ -9,10 +9,18 @@ export async function middleware(request: NextRequest) {
     request.cookies.get("__Secure-better-auth.session_token")?.value ||
     request.cookies.get("better-auth.session_token")?.value;
 
-  // Protect /dev/*, /dashboard/*, /onboarding — require auth
-  if (pathname.startsWith("/dev") || pathname.startsWith("/dashboard") || pathname === "/onboarding") {
+  // Protect /dashboard/*, /onboarding — require auth
+  if (pathname.startsWith("/dashboard") || pathname === "/onboarding") {
     if (!sessionToken) {
       return NextResponse.redirect(new URL("/signin", request.url));
+    }
+  }
+
+  // Protect /dev/* — require auth (redirect to root if not logged in)
+  // Admin check is handled by apps/web/app/dev/layout.tsx (server-side DB check)
+  if (pathname.startsWith("/dev")) {
+    if (!sessionToken) {
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
