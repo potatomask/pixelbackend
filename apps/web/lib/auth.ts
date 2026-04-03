@@ -144,6 +144,9 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"],
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;
