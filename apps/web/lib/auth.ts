@@ -113,6 +113,21 @@ export const auth = betterAuth({
         }
       : {}),
   },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          const ADMIN_EMAILS = ["nyflixboy@gmail.com"];
+          if (ADMIN_EMAILS.includes(user.email)) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { isAdmin: true },
+            });
+          }
+        },
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 30, // 30 days
     updateAge: 60 * 60 * 24, // refresh session token every 24 hours
