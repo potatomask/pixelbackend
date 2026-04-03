@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Tier ────────────────────────────────────────────
+// SQLite doesn't support native enums, so we store as String.
+// Valid values: FREE, STARTER, PRO
+
+// ─── User ────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(cuid())
+  name           String    @default("")
+  email          String    @unique
+  emailVerified  Boolean   @default(false)
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  // App-specific fields
+  handle         String    @unique @default(cuid())
+  displayName    String?
+  bio            String?
+  themeColors    String?   // JSON string of ThemeColors
+  isAdmin        Boolean   @default(false)
+  tier           String    @default("FREE") // FREE | STARTER | PRO
+  tierExpiresAt  DateTime?
+  paidSince      DateTime? // when user first started a paid subscription
+  creemCustomerId String?  // Creem customer ID for portal access
+  creemSubscriptionId String? // Creem subscription ID for status tracking
+  subscriptionStatus String  @default("none") // none | active | canceled
+  storageUsed    Int       @default(0) // bytes of storage used
+  onboardedAt    DateTime? // null = needs onboarding
+
+  // Relations
+  sessions       Session[]
+  accounts       Account[]
+  worlds         World[]
+  cancelFeedback CancelFeedback[]
+  feedbacks      Feedback[]
+  onboarding     Onboarding?
+}
+
+// ─── Better Auth: Session ────────────────────────────
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Better Auth: Account ────────────────────────────
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+// ─── Better Auth: Verification ───────────────────────
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+// ─── Cancel Feedback ─────────────────────────────────
+
+model CancelFeedback {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  reason    String   // short reason tag
+  comment   String?  // optional long-form comment
+  prevTier  String   // tier they were on before cancelling
+  status    String   @default("new") // new | reviewed | resolved
+  createdAt DateTime @default(now())
+}
+
+// ─── General Feedback ────────────────────────────────
+
+model Feedback {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String   @default("general") // general | bug | feature
+  message   String
+  status    String   @default("new") // new | reviewed | resolved
+  createdAt DateTime @default(now())
+}
+
+// ─── Admin Stats Snapshots ───────────────────────────
+
+model StatsSnapshot {
+  id              String   @id @default(cuid())
+  date            DateTime @unique // one row per day
+  totalUsers      Int      @default(0)
+  freeUsers       Int      @default(0)
+  starterUsers    Int      @default(0)
+  proUsers        Int      @default(0)
+  totalWorlds     Int      @default(0)
+  publishedWorlds Int      @default(0)
+  newSignups      Int      @default(0) // signups on this day
+  revenue         Float    @default(0) // placeholder
+}
+
+// ─── World ───────────────────────────────────────────
+
+model World {
+  id            String    @id @default(cuid())
+  owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId       String
+  slug          String    @unique
+  width         Int       @default(32)
+  height        Int       @default(32)
+  tileSize      Int       @default(16)
+  draftData     String    @default("{}") // JSON string of WorldData
+  publishedData String? // JSON string of WorldData
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  publishRecords PublishRecord[]
+}
+
+// ─── Publish Records ─────────────────────────────────
+
+model PublishRecord {
+  id          String   @id @default(cuid())
+  world       World    @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  worldId     String
+  version     Int
+  data        String   // JSON string of WorldData
+  publishedAt DateTime @default(now())
+}
+
+// ─── Tile Definitions (admin-managed) ────────────────
+
+model TileDefinition {
+  id         Int      @id           // matches TileDef.id (0 reserved for empty)
+  name       String
+  color      String                 // fallback hex e.g. "#4a7c59"
+  walkable   Boolean  @default(true)
+  tilesetSrc String?                // URL path to tileset image
+  srcX       Int      @default(0)
+  srcY       Int      @default(0)
+  tileCost   Float    @default(1)
+  autoTile   Boolean  @default(false)
+  zLayer     Int      @default(1)   // 0=water, 1=ground, 2=overlay
+  createdAt  DateTime @default(now())
+}
+
+// ─── Analytics Events ────────────────────────────────
+
+model AnalyticsEvent {
+  id         Int      @id @default(autoincrement())
+  worldId    String
+  eventType  String
+  objectId   String?
+  deviceType String?
+  timestamp  DateTime @default(now())
+
+  @@index([worldId])
+  @@index([timestamp])
+}
+
+// ─── Reports ─────────────────────────────────────────
+
+model Report {
+  id         String   @id @default(cuid())
+  worldId    String
+  reason     String
+  reporterIp String?
+  resolved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// ─── Site Settings (key-value store) ─────────────────
+
+model SiteSetting {
+  key       String   @id
+  value     String   // JSON string
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// ─── Onboarding ──────────────────────────────────────
+
+model Onboarding {
+  id           String   @id @default(cuid())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @unique
+  source       String   // google | bing | twitter | other
+  sourceOther  String?  // free text if source=other
+  useCase      String   // portfolio | landing_page | link_in_bio | other
+  useCaseOther String?  // free text if useCase=other
+  createdAt    DateTime @default(now())
+}

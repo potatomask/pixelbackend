@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+/* Scan workspace packages so their Tailwind classes are included */
+@source "../../packages/editor/src/**/*.{ts,tsx}";
+@source "../../packages/runtime/src/**/*.{ts,tsx}";
+@source "../../packages/shared/src/**/*.{ts,tsx}";
+
+@theme {
+  --animate-shimmer: shimmer 1.5s infinite;
+  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, SFMono-Regular, monospace;
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-800 rounded-full hover:bg-gray-700 transition-colors;
+  }
+}
+
+/* ── File Explorer Dashboard ── */
+
+.dashboard-bg {
+  background-color: #e2e8f0;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.folder-tab {
+  border-radius: 12px 16px 0 0;
+  border: 3px solid #334155;
+  border-bottom: none;
+  position: relative;
+  box-shadow: 2px -4px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.folder-tab-active {
+  background-color: #fef08a;
+  border-bottom: 3px solid #fef08a;
+  z-index: 20;
+  padding-bottom: 1.5rem;
+  margin-bottom: -3px;
+  transform: translateY(-4px);
+  box-shadow: 4px -6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.folder-tab-inactive {
+  background-color: #e2e8f0;
+  z-index: 10;
+  margin-bottom: -3px;
+  margin-top: 0.5rem;
+  margin-left: -1rem;
+}
+
+.folder-tab-inactive:hover {
+  background-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.folder-body {
+  background-color: #fef08a;
+  border: 3px solid #334155;
+  border-radius: 0 16px 16px 16px;
+  box-shadow: 10px 15px 25px rgba(0, 0, 0, 0.15),
+    inset 0 0 40px rgba(0, 0, 0, 0.02);
+}
+
+.paper-sheet {
+  background-color: #fdfbf7;
+  border: 2px solid #94a3b8;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.05);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 31px,
+    #cbd5e1 31px,
+    #cbd5e1 32px
+  );
+  line-height: 32px;
+}
+
+.btn-action {
+  box-shadow: 4px 4px 0px #334155;
+  transition: all 0.1s;
+}
+
+.btn-action:active {
+  box-shadow: 0px 0px 0px #334155;
+  transform: translate(4px, 4px);
+}
+
+.stamp {
+  border: 6px double;
+  mix-blend-mode: multiply;
+}
+
+html.dark .dashboard-bg {
+  background-color: #0f172a;
+  background-image: radial-gradient(#1e293b 1px, transparent 1px);
+}
+html.dark .folder-tab {
+  border-color: #020617;
+}
+html.dark .folder-tab-active {
+  background-color: #475569;
+  border-bottom: 3px solid #475569;
+}
+html.dark .folder-tab-inactive {
+  background-color: #1e293b;
+}
+html.dark .folder-tab-inactive:hover {
+  background-color: #334155;
+}
+html.dark .folder-body {
+  background-color: #475569;
+  border-color: #020617;
+}
+html.dark .paper-sheet {
+  background-color: #1e293b;
+  border-color: #334155;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 31px,
+    #0f172a 31px,
+    #0f172a 32px
+  );
+}
+html.dark .btn-action {
+  box-shadow: 4px 4px 0px #020617;
+}
+html.dark .btn-action:active {
+  box-shadow: 0px 0px 0px #020617;
+}
+html.dark .stamp {
+  mix-blend-mode: screen;
+}
+html.dark .text-slate-800 {
+  color: #f8fafc;
+}
+html.dark .text-slate-700 {
+  color: #f1f5f9;
+}
+html.dark .text-slate-600 {
+  color: #cbd5e1;
+}
+html.dark .text-slate-500 {
+  color: #94a3b8;
+}
+html.dark .bg-white\/50 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+html.dark .bg-white\/60 {
+  background-color: rgba(30, 41, 59, 0.6);
+}
+html.dark .border-slate-200 {
+  border-color: #334155;
+}
+html.dark .border-slate-300 {
+  border-color: #475569;
+}
+
+/* Dark mode – additional overrides */
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.8);
+}
+html.dark .bg-amber-100\/50 {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+html.dark .border-amber-500\/30 {
+  border-color: rgba(100, 116, 139, 0.4);
+}
+html.dark .text-amber-700 {
+  color: #94a3b8;
+}
+html.dark .text-amber-800 {
+  color: #cbd5e1;
+}
+html.dark .bg-amber-100 {
+  background-color: #334155;
+}
+html.dark .bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.2);
+}
+html.dark .text-indigo-800 {
+  color: #a5b4fc;
+}
+html.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.15);
+}
+html.dark .text-emerald-800 {
+  color: #6ee7b7;
+}
+html.dark .bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.15);
+}
+html.dark .text-rose-800 {
+  color: #fda4af;
+}
+html.dark .bg-blue-50 {
+  background-color: rgba(99, 102, 241, 0.1);
+}
+html.dark .text-blue-800 {
+  color: #93c5fd;
+}
+html.dark .bg-emerald-50\/50 {
+  background-color: rgba(16, 185, 129, 0.08);
+}
+html.dark .bg-indigo-50\/50 {
+  background-color: rgba(99, 102, 241, 0.08);
+}
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+html.dark .bg-slate-50\/50 {
+  background-color: rgba(15, 23, 42, 0.5);
+}
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+html.dark .bg-slate-200 {
+  background-color: #334155;
+}
+html.dark .border-indigo-200 {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+html.dark .border-indigo-300 {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+html.dark .border-emerald-400 {
+  border-color: rgba(16, 185, 129, 0.5);
+}

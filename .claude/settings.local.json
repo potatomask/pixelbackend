@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(node -e \"const fs = require\\(''fs''\\); const d = JSON.parse\\(fs.readFileSync\\(''d:/CODING/mypixelpage/apps/web/data/dev-world.json'', ''utf-8''\\)\\); console.log\\(''top-level keys:'', Object.keys\\(d\\)\\); console.log\\(''tiles count:'', d.tiles?.length\\); console.log\\(''objects count:'', d.objects?.length\\); console.log\\(''animations count:'', d.animations?.length\\); console.log\\(''characterConfig:'', typeof d.characterConfig\\); console.log\\(''tags count:'', d.tags?.length\\);\")",
+      "Bash(node -e \"const fs = require\\(''fs''\\); const d = JSON.parse\\(fs.readFileSync\\(''d:/CODING/mypixelpage/apps/web/data/dev-world.json'', ''utf-8''\\)\\); console.log\\(''assets keys:'', Object.keys\\(d.assets || {}\\)\\); console.log\\(''tiles count:'', d.assets?.tiles?.length\\); console.log\\(''objects count:'', d.assets?.objects?.length\\); console.log\\(''animations count:'', d.assets?.animations?.length\\); console.log\\(''characterConfig:'', typeof d.assets?.characterConfig\\); console.log\\(''tags count:'', d.assets?.tags?.length\\); console.log\\(''autotileCenterVariants:'', Object.keys\\(d.assets?.autotileCenterVariants || {}\\).length\\); console.log\\(''autotileLinearMaps:'', Object.keys\\(d.assets?.autotileLinearMaps || {}\\).length\\);\")"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+﻿{
+    "theme_color":  "#ffffff",
+    "name":  "MyPixelPage",
+    "background_color":  "#ffffff",
+    "display":  "standalone",
+    "short_name":  "MyPixelPage",
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "/favicon-192x192.png"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "/favicon-512x512.png"
+                  }
+              ]
+}

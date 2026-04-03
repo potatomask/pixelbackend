@@ -1,0 +1,36 @@
+# deps
+node_modules/
+
+# build
+dist/
+.next/
+out/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# os
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# drizzle
+drizzle/meta/
+
+# prisma
+*.db
+*.db-journal
+
+# misc
+*.tsbuildinfo
+
+# dev world data (saved by editor)
+apps/web/data/
+
+# standalone landing page repo
+landing page/

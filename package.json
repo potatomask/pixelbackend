@@ -1,0 +1,26 @@
+{
+  "name": "mypixelpage",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @mypixelpage/web dev",
+    "build": "pnpm --filter @mypixelpage/web build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
+  "devDependencies": {
+    "eslint": "^10.0.3",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "dependencies": {
+    "lucide-react": "^0.577.0"
+  }
+}
