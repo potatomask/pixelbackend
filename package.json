@@ -5,10 +5,7 @@
     "dev": "pnpm --filter @mypixelpage/web dev",
     "build": "pnpm --filter @mypixelpage/web build",
     "lint": "pnpm -r lint",
-    "test": "pnpm -r test",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "eslint": "^10.0.3",
