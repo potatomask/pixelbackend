@@ -6,7 +6,7 @@ import type { TileDef } from "@mypixelpage/shared";
 import type { AnimationDef } from "@mypixelpage/shared";
 import { DEFAULT_TAGS, loadTagsFromStorage } from "@mypixelpage/shared";
 import type { TagDef } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 import { useNotify } from "@/components/notifications";
 
 const ANIM_STORAGE_KEY = "dev-animations";
@@ -33,8 +33,7 @@ function loadSavedTiles(): TileDef[] {
 }
 
 function saveTiles(tiles: TileDef[]) {
-  localStorage.setItem(TILES_STORAGE_KEY, JSON.stringify(tiles));
-  syncSettingToServer(TILES_STORAGE_KEY, JSON.stringify(tiles));
+  saveDevSetting(TILES_STORAGE_KEY, JSON.stringify(tiles));
   registerDevTiles(tiles);
 }
 

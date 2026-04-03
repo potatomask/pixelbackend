@@ -1,12 +1,36 @@
 /**
- * Utility for syncing /dev settings between localStorage and the server (SiteSetting table).
- * All /dev editors save to localStorage first, then debounce-sync to the server.
- * On page load, settings are fetched from the server and merged into localStorage.
+ * Dev settings storage utility.
+ *
+ * Server DB (SiteSetting table) is the SOURCE OF TRUTH.
+ * localStorage is a local cache for instant reads.
+ *
+ * SAVE: localStorage (immediate for UX) → server (debounced with retry)
+ * LOAD: server first → localStorage cache (fallback if server unreachable)
  */
 
-const SYNC_DEBOUNCE_MS = 1500;
+const SYNC_DEBOUNCE_MS = 1000;
 const pendingTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const pendingValues = new Map<string, { key: string; value: string }>();
+
+/** Send a setting to the server with retry. Returns true on success. */
+async function sendToServer(key: string, value: string): Promise<boolean> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, value }),
+      });
+      if (res.ok) return true;
+      if (res.status === 401 || res.status === 403) return false; // don't retry auth errors
+    } catch {
+      // network error — retry
+    }
+    if (attempt < 2) await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+  }
+  console.warn(`[dev-settings] Failed to save "${key}" after 3 attempts`);
+  return false;
+}
 
 /** Immediately flush a pending sync for a given key (used on page unload). */
 function flushSync(key: string): void {
@@ -41,12 +65,34 @@ if (typeof window !== "undefined") {
   window.addEventListener("beforeunload", flushAllPending);
 }
 
-/** Save a dev setting to the server via /api/admin/settings (debounced). */
-export function syncSettingToServer(key: string, value: string): void {
+/**
+ * Save a dev setting: localStorage (instant) + server (debounced with retry).
+ * This is the PRIMARY save function — use this in all dev editors.
+ */
+export function saveDevSetting(key: string, value: string): void {
+  localStorage.setItem(key, value);
+  syncToServer(key, value);
+}
+
+/**
+ * Save a dev setting immediately (no debounce). Use for explicit "Save" clicks.
+ * Returns true if the server accepted the write.
+ */
+export async function saveDevSettingImmediate(key: string, value: string): Promise<boolean> {
+  const timer = pendingTimers.get(key);
+  if (timer) clearTimeout(timer);
+  pendingTimers.delete(key);
+  pendingValues.delete(key);
+
+  localStorage.setItem(key, value);
+  return sendToServer(key, value);
+}
+
+/** Debounced server sync (internal). */
+function syncToServer(key: string, value: string): void {
   const existing = pendingTimers.get(key);
   if (existing) clearTimeout(existing);
 
-  // Track the latest value so we can flush it on unload
   pendingValues.set(key, { key, value });
 
   pendingTimers.set(
@@ -54,31 +100,33 @@ export function syncSettingToServer(key: string, value: string): void {
     setTimeout(() => {
       pendingTimers.delete(key);
       pendingValues.delete(key);
-      fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key, value }),
-      }).catch((err) => {
-        console.warn(`[dev-settings-sync] Failed to sync "${key}":`, err);
-      });
+      sendToServer(key, value);
     }, SYNC_DEBOUNCE_MS),
   );
 }
 
-/** Load a dev setting from the server and write it to localStorage if it exists. */
+/** @deprecated Use saveDevSetting instead. Kept for backward compatibility. */
+export function syncSettingToServer(key: string, value: string): void {
+  syncToServer(key, value);
+}
+
+/**
+ * Load a dev setting from the server (source of truth).
+ * Caches to localStorage on success. Falls back to localStorage if server is unreachable.
+ */
 export async function loadSettingFromServer(key: string): Promise<string | null> {
   try {
     const res = await fetch(`/api/admin/settings?key=${encodeURIComponent(key)}`, {
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    if (!res.ok) return localStorage.getItem(key);
     const data = (await res.json()) as { value: string | null };
     if (data.value != null) {
       localStorage.setItem(key, data.value);
       return data.value;
     }
   } catch {
-    // Fall back to localStorage
+    return localStorage.getItem(key);
   }
   return null;
 }
@@ -119,7 +167,7 @@ export function autoHealSettings(results: Array<[string, string | null]>): void 
     if (serverValue != null) continue; // server already has it
     const local = localStorage.getItem(key);
     if (local != null && local !== "[]" && local !== "{}" && local !== "null") {
-      syncSettingToServer(key, local);
+      syncToServer(key, local);
     }
   }
 }

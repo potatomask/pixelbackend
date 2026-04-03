@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import type { WindConfig } from "@mypixelpage/shared";
 import { DEFAULT_WIND_CONFIG, WIND_CONFIG_KEY } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 import { useNotify } from "@/components/notifications";
 
 /* ── Persistence ───────────────────────────────────── */
@@ -19,9 +19,7 @@ function loadWindConfig(): WindConfig {
 }
 
 function saveWindConfig(config: WindConfig) {
-  const json = JSON.stringify(config);
-  localStorage.setItem(WIND_CONFIG_KEY, json);
-  syncSettingToServer(WIND_CONFIG_KEY, json);
+  saveDevSetting(WIND_CONFIG_KEY, JSON.stringify(config));
 }
 
 /* ── Direction helpers ─────────────────────────────── */

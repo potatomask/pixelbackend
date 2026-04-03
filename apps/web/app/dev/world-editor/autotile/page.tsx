@@ -16,7 +16,7 @@ import {
   getAllTiles,
 } from "@mypixelpage/shared";
 import type { BitmaskMapEntry, TileDef } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 
 /* ── Constants ──────────────────────────────────────── */
 
@@ -73,8 +73,7 @@ function loadCardinalMaps(): Record<string, BitmaskMapEntry[]> {
 }
 
 function saveCardinalMaps(maps: Record<string, BitmaskMapEntry[]>) {
-  localStorage.setItem(CARDINAL_STORAGE_KEY, JSON.stringify(maps));
-  syncSettingToServer(CARDINAL_STORAGE_KEY, JSON.stringify(maps));
+  saveDevSetting(CARDINAL_STORAGE_KEY, JSON.stringify(maps));
   for (const [src, map] of Object.entries(maps)) {
     setCustomAutoTileMap(src, map);
   }
@@ -88,8 +87,7 @@ function loadQuadrantMaps(): Record<string, { col: number; row: number }[][]> {
 }
 
 function saveQuadrantMaps(maps: Record<string, { col: number; row: number }[][]>) {
-  localStorage.setItem(QUADRANT_STORAGE_KEY, JSON.stringify(maps));
-  syncSettingToServer(QUADRANT_STORAGE_KEY, JSON.stringify(maps));
+  saveDevSetting(QUADRANT_STORAGE_KEY, JSON.stringify(maps));
 }
 
 function loadCenterVariants(): Record<string, CenterVariant[]> {
@@ -100,8 +98,7 @@ function loadCenterVariants(): Record<string, CenterVariant[]> {
 }
 
 function saveCenterVariants(variants: Record<string, CenterVariant[]>) {
-  localStorage.setItem(VARIANTS_STORAGE_KEY, JSON.stringify(variants));
-  syncSettingToServer(VARIANTS_STORAGE_KEY, JSON.stringify(variants));
+  saveDevSetting(VARIANTS_STORAGE_KEY, JSON.stringify(variants));
 }
 
 function loadLinearMaps(): Record<string, BitmaskMapEntry[]> {
@@ -112,8 +109,7 @@ function loadLinearMaps(): Record<string, BitmaskMapEntry[]> {
 }
 
 function saveLinearMaps(maps: Record<string, BitmaskMapEntry[]>) {
-  localStorage.setItem(LINEAR_STORAGE_KEY, JSON.stringify(maps));
-  syncSettingToServer(LINEAR_STORAGE_KEY, JSON.stringify(maps));
+  saveDevSetting(LINEAR_STORAGE_KEY, JSON.stringify(maps));
   for (const [src, map] of Object.entries(maps)) {
     setCustomLinearMap(src, map);
   }

@@ -11,7 +11,7 @@ import type {
   TagDef,
 } from "@mypixelpage/shared";
 import { DEFAULT_TAGS, DEFAULT_COLLISION, loadTagsFromStorage } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 import { useNotify } from "@/components/notifications";
 
 /* ── Constants ──────────────────────────────────── */
@@ -29,8 +29,7 @@ function loadCustomSources(): string[] {
   } catch { return []; }
 }
 function saveCustomSources(srcs: string[]) {
-  localStorage.setItem(CUSTOM_SRC_KEY, JSON.stringify(srcs));
-  syncSettingToServer(CUSTOM_SRC_KEY, JSON.stringify(srcs));
+  saveDevSetting(CUSTOM_SRC_KEY, JSON.stringify(srcs));
 }
 function loadObjects(): ObjectDef[] {
   if (typeof window === "undefined") return [];
@@ -39,8 +38,7 @@ function loadObjects(): ObjectDef[] {
   } catch { return []; }
 }
 function saveObjects(objs: ObjectDef[]) {
-  localStorage.setItem(OBJ_STORAGE_KEY, JSON.stringify(objs));
-  syncSettingToServer(OBJ_STORAGE_KEY, JSON.stringify(objs));
+  saveDevSetting(OBJ_STORAGE_KEY, JSON.stringify(objs));
 }
 function loadAnimations(): AnimationDef[] {
   if (typeof window === "undefined") return [];

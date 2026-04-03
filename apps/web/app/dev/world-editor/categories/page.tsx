@@ -10,7 +10,7 @@ import {
   getTileDef,
 } from "@mypixelpage/shared";
 import type { ObjectDef, TileDef, CategoryDef } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 import { useNotify } from "@/components/notifications";
 
 /* ── Constants ─────────────────────────────────────── */
@@ -122,8 +122,7 @@ function loadCategories(): CategoryDef[] {
 }
 
 function saveCategories(cats: CategoryDef[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cats));
-  syncSettingToServer(STORAGE_KEY, JSON.stringify(cats));
+  saveDevSetting(STORAGE_KEY, JSON.stringify(cats));
 }
 
 function loadObjects(): ObjectDef[] {

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { TILESET_TILE_SIZE, getUniqueTilesetSources } from "@mypixelpage/shared";
 import type { AnimationDef, AnimationFrame } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 import { useNotify } from "@/components/notifications";
 
 /* ── Constants ──────────────────────────────────── */
@@ -25,8 +25,7 @@ function loadAnimations(): AnimationDef[] {
 }
 
 function saveAnimations(anims: AnimationDef[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(anims));
-  syncSettingToServer(STORAGE_KEY, JSON.stringify(anims));
+  saveDevSetting(STORAGE_KEY, JSON.stringify(anims));
 }
 
 function loadCustomSources(): string[] {
@@ -36,8 +35,7 @@ function loadCustomSources(): string[] {
   } catch { return []; }
 }
 function saveCustomSources(srcs: string[]) {
-  localStorage.setItem(CUSTOM_SRC_KEY, JSON.stringify(srcs));
-  syncSettingToServer(CUSTOM_SRC_KEY, JSON.stringify(srcs));
+  saveDevSetting(CUSTOM_SRC_KEY, JSON.stringify(srcs));
 }
 
 /* ── Styles ─────────────────────────────────────── */

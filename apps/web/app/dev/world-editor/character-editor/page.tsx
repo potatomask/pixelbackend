@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { getUniqueTilesetSources, TILESET_TILE_SIZE } from "@mypixelpage/shared";
 import type { AnimationDef, AnimationFrame } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 
 const STORAGE_KEY = "dev-character-config";
 const CUSTOM_SRC_KEY = "dev-custom-tileset-sources";
@@ -833,8 +833,7 @@ export default function CharacterEditorPage() {
   };
 
   const save = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-    syncSettingToServer(STORAGE_KEY, JSON.stringify(config));
+    saveDevSetting(STORAGE_KEY, JSON.stringify(config));
     setSavedAt(new Date());
   };
 
@@ -851,11 +850,9 @@ export default function CharacterEditorPage() {
           const parsed = JSON.parse(localStorage.getItem(CUSTOM_SRC_KEY) ?? "[]") as unknown[];
           const custom = parsed.filter((src): src is string => typeof src === "string" && src.length > 0);
           const merged = custom.includes(result) ? custom : [...custom, result];
-          localStorage.setItem(CUSTOM_SRC_KEY, JSON.stringify(merged));
-          syncSettingToServer(CUSTOM_SRC_KEY, JSON.stringify(merged));
+          saveDevSetting(CUSTOM_SRC_KEY, JSON.stringify(merged));
         } catch {
-          localStorage.setItem(CUSTOM_SRC_KEY, JSON.stringify([result]));
-          syncSettingToServer(CUSTOM_SRC_KEY, JSON.stringify([result]));
+          saveDevSetting(CUSTOM_SRC_KEY, JSON.stringify([result]));
         }
         return next;
       });

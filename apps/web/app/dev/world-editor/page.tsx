@@ -5,7 +5,7 @@ import { TILESET_TILE_SIZE, TILE_EMPTY, initDevTiles, getAllTiles } from "@mypix
 import type { TileDef, TagDef, ObjectDef } from "@mypixelpage/shared";
 import { DEFAULT_TAGS } from "@mypixelpage/shared";
 import { useNotify } from "@/components/notifications";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 
 /* ── Styles ─────────────────────────────────────── */
 const pageBg: React.CSSProperties = {
@@ -361,8 +361,7 @@ function loadTagRules(): TagDef[] {
 }
 
 function saveTagRules(tags: TagDef[]) {
-  localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(tags));
-  syncSettingToServer(TAG_STORAGE_KEY, JSON.stringify(tags));
+  saveDevSetting(TAG_STORAGE_KEY, JSON.stringify(tags));
 }
 
 function TagRulesEditor() {

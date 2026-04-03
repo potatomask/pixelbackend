@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { TILESET_TILE_SIZE, getUniqueTilesetSources } from "@mypixelpage/shared";
 import type { SidePageTheme, ThemeSpriteRef, NineSliceTiles } from "@mypixelpage/shared";
-import { syncSettingToServer, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
+import { saveDevSetting, loadSettingFromServer, autoHealSettings } from "@/lib/utils/dev-settings-sync";
 import { useNotify } from "@/components/notifications";
 
 /* ── Constants & Storage ────────────────────────── */
@@ -18,8 +18,7 @@ function loadCustomSources(): string[] {
   } catch { return []; }
 }
 function saveCustomSources(srcs: string[]) {
-  localStorage.setItem(CUSTOM_SRC_KEY, JSON.stringify(srcs));
-  syncSettingToServer(CUSTOM_SRC_KEY, JSON.stringify(srcs));
+  saveDevSetting(CUSTOM_SRC_KEY, JSON.stringify(srcs));
 }
 
 const DEFAULT_THEME: SidePageTheme = {
@@ -47,8 +46,7 @@ function loadThemes(): SidePageTheme[] {
 function saveThemes(themes: SidePageTheme[]) {
   const payload = JSON.stringify(themes);
   try {
-    localStorage.setItem(STORAGE_KEY, payload);
-    syncSettingToServer(STORAGE_KEY, payload);
+    saveDevSetting(STORAGE_KEY, payload);
   } catch (error) {
     console.error("[sidepage-editor] Failed to save themes (storage quota exceeded)", error);
   }
