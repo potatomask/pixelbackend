@@ -117,11 +117,23 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
+          const updates: Record<string, unknown> = {};
+
+          // Auto-admin for known emails
           const ADMIN_EMAILS = ["nyflixboy@gmail.com"];
           if (ADMIN_EMAILS.includes(user.email)) {
+            updates.isAdmin = true;
+          }
+
+          // Default avatar if none provided (email signups, GitHub users without avatar)
+          if (!user.image) {
+            updates.image = "/favicon-192x192.png";
+          }
+
+          if (Object.keys(updates).length > 0) {
             await prisma.user.update({
               where: { id: user.id },
-              data: { isAdmin: true },
+              data: updates,
             });
           }
         },

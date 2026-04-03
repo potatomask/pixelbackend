@@ -87,11 +87,14 @@ export async function PUT(request: NextRequest) {
   if (parsed.data.displayName !== undefined) data.displayName = parsed.data.displayName;
   if (parsed.data.bio !== undefined) data.bio = parsed.data.bio;
   if (parsed.data.image !== undefined) {
-    // Validate image URL — block javascript:, data:, etc.
-    if (!isUrlSafe(parsed.data.image)) {
+    if (!parsed.data.image) {
+      // Empty/null → use default avatar
+      data.image = "/favicon-192x192.png";
+    } else if (!isUrlSafe(parsed.data.image)) {
       return NextResponse.json({ error: "Invalid image URL. Only HTTPS URLs are allowed." }, { status: 400 });
+    } else {
+      data.image = parsed.data.image;
     }
-    data.image = parsed.data.image;
   }
   if (typeof body.handle === "string") data.handle = body.handle;
   if (parsed.data.themeColors !== undefined)
