@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { DEV_SETTING_KEYS, saveDevSettingImmediate } from "@/lib/utils/dev-settings-sync";
 
 const CARDS = [
   {
@@ -58,6 +60,31 @@ const cardStyle: React.CSSProperties = {
 };
 
 export default function DevHubPage() {
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "done" | "error">("idle");
+  const [syncDetail, setSyncDetail] = useState("");
+
+  const forceSyncAll = async () => {
+    setSyncStatus("syncing");
+    setSyncDetail("");
+    let ok = 0;
+    let fail = 0;
+    for (const key of DEV_SETTING_KEYS) {
+      const value = localStorage.getItem(key);
+      if (value == null || value === "[]" || value === "{}" || value === "null") continue;
+      const success = await saveDevSettingImmediate(key, value);
+      if (success) ok++;
+      else fail++;
+    }
+    if (fail === 0) {
+      setSyncStatus("done");
+      setSyncDetail(`${ok} settings pushed to server`);
+    } else {
+      setSyncStatus("error");
+      setSyncDetail(`${ok} succeeded, ${fail} failed`);
+    }
+    setTimeout(() => setSyncStatus("idle"), 4000);
+  };
+
   return (
     <div style={pageBg}>
       <h1 style={{ margin: "0 0 8px", fontSize: 26 }}>Dev Tools</h1>
@@ -83,6 +110,34 @@ export default function DevHubPage() {
             <div style={{ fontSize: 13, color: "#999", lineHeight: 1.5 }}>{card.desc}</div>
           </Link>
         ))}
+      </div>
+
+      {/* Force sync button */}
+      <div style={{ marginTop: 48, textAlign: "center" }}>
+        <button
+          onClick={forceSyncAll}
+          disabled={syncStatus === "syncing"}
+          style={{
+            padding: "10px 24px",
+            background: syncStatus === "done" ? "#166534" : syncStatus === "error" ? "#991b1b" : "#2563eb",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: syncStatus === "syncing" ? "wait" : "pointer",
+            opacity: syncStatus === "syncing" ? 0.7 : 1,
+            transition: "all 0.2s",
+          }}
+        >
+          {syncStatus === "syncing" ? "Syncing..." : syncStatus === "done" ? "Synced!" : syncStatus === "error" ? "Sync Failed" : "Force Push All Settings to Server"}
+        </button>
+        {syncDetail && (
+          <p style={{ color: "#888", fontSize: 12, marginTop: 8 }}>{syncDetail}</p>
+        )}
+        <p style={{ color: "#555", fontSize: 11, marginTop: 6 }}>
+          Reads all dev settings from this browser and writes them to the server DB.
+        </p>
       </div>
     </div>
   );
