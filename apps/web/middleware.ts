@@ -4,7 +4,9 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Better Auth session cookie (set by better-auth)
+  // In production with secure cookies, the prefix is __Secure-
   const sessionToken =
+    request.cookies.get("__Secure-better-auth.session_token")?.value ||
     request.cookies.get("better-auth.session_token")?.value;
 
   // Protect /dev/*, /dashboard/*, /onboarding — require auth
