@@ -462,6 +462,31 @@ export function EditorShell({ openFeedback }: { openFeedback?: () => void }) {
             }),
           );
         } catch { /* silent */ }
+
+        // Retry any dev-settings that failed to write to server on a previous session
+        try {
+          const dirtyRaw = localStorage.getItem("__dev-settings-dirty");
+          if (dirtyRaw) {
+            const dirtyKeys = JSON.parse(dirtyRaw) as string[];
+            const remaining: string[] = [];
+            for (const dk of dirtyKeys) {
+              const val = localStorage.getItem(dk);
+              if (!val) continue;
+              try {
+                const r = await fetch("/api/admin/settings", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ key: dk, value: val }),
+                });
+                if (!r.ok) remaining.push(dk);
+              } catch {
+                remaining.push(dk);
+              }
+            }
+            if (remaining.length === 0) localStorage.removeItem("__dev-settings-dirty");
+            else localStorage.setItem("__dev-settings-dirty", JSON.stringify(remaining));
+          }
+        } catch { /* silent */ }
       } catch {
         /* silent — editor still works with localStorage fallback */
       }
