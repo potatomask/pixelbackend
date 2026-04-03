@@ -46,8 +46,11 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  // Fetch current user from DB to get handle (session.user may not have custom fields)
+  const dbUser = await prisma.user.findUnique({ where: { id: user!.id }, select: { handle: true } });
+
   // Check handle availability if changed
-  if (typeof body.handle === "string" && body.handle !== user?.handle) {
+  if (typeof body.handle === "string" && body.handle !== dbUser?.handle) {
     const handle = body.handle;
 
     // Min 3 characters
@@ -74,7 +77,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const existing = await prisma.user.findUnique({ where: { handle } });
-    if (existing) {
+    if (existing && existing.id !== user!.id) {
       return NextResponse.json({ error: "Handle already taken" }, { status: 400 });
     }
   }

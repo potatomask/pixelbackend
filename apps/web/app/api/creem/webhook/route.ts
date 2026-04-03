@@ -136,10 +136,14 @@ export const POST = Webhook({
 
     // Always store the subscription ID and real dates
     const updateData: Record<string, unknown> = {
-      paidSince: periodStart ? new Date(periodStart) : (user.paidSince ?? new Date()),
       tierExpiresAt: periodEnd ? new Date(periodEnd) : null,
       subscriptionStatus: "active",
     };
+
+    // Only set paidSince if not already set (preserve original first-paid date)
+    if (!user.paidSince) {
+      updateData.paidSince = periodStart ? new Date(periodStart) : new Date();
+    }
 
     if (subscription.id) {
       updateData.creemSubscriptionId = subscription.id;
@@ -228,7 +232,7 @@ export const POST = Webhook({
     if (!user) return;
     await prisma.user.update({
       where: { id: user.id },
-      data: { tier: "FREE", creemSubscriptionId: null, tierExpiresAt: null, subscriptionStatus: "canceled" },
+      data: { tier: "FREE", tierExpiresAt: null, subscriptionStatus: "canceled" },
     });
   },
   onSubscriptionPastDue: async ({ customer }) => {

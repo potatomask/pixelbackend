@@ -97,11 +97,14 @@ export function ProfileForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ handle, displayName, bio, image }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to save");
+      }
       toast("success", "Profile saved successfully");
       setCheckingInfo({ state: "idle", message: "" });
     } catch (err) {
-      toast("error", "Failed to save profile");
+      toast("error", err instanceof Error ? err.message : "Failed to save profile");
     } finally {
       setSaving(false);
     }
